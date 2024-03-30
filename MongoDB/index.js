@@ -51,10 +51,22 @@ app.post("/products", async (req, res) => {
 })
 // read data
 
-app.get("/products/:id", async (req, res) => {
+app.get("/products", async (req, res) => {
     try {
-        const id = req.params.id;
-        const productData = await Product.findOne({ _id: id }, { title: 0, price: 1, description: 1, _id: 0 });
+        // const id = req.params.id;
+        // const productData = await Product.findOne({ _id: id }, { title: 0, price: 1, description: 1, _id: 0 });
+
+        // gt, gte, lt, lte, in, nin , eq ,ne 
+        // $and $or $not $nor
+        const productData = await Product.find(
+            {
+                $and: [
+                    { price: { $gt: 5 } },
+                    { price: { $lte: 550 } }
+                ]
+            }).sort({ price: -1 }).limit(10).select({ title: 1, name: 1, _id: 0 });
+
+
         if (productData) {
             res.status(200).send(productData);
         } else {
