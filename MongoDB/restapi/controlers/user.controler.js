@@ -1,12 +1,30 @@
 const User = require("../models/user.model");
 const { v4: uuidv4 } = require("uuid");
 
-const getAllUsers = (req, res) => {
-  res.status(200).send("get all user");
+const getAllUsers = async (req, res) => {
+  try {
+    const user = await User.find();
+    res.status(200).json({
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-const getOneUsers = (req, res) => {
-  res.status(200).send("get one user");
+const getOneUsers = async (req, res) => {
+  try {
+    const user = await User.findOne({ id: req.params.id }, { _id: 0 }).select({
+      age: 1,
+    });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 const createUsers = async (req, res) => {
@@ -20,16 +38,34 @@ const createUsers = async (req, res) => {
     await newUser.save();
     res.status(201).send(newUser);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json({ message: error.message });
   }
 };
 
-const updateUsers = (req, res) => {
-  res.status(200).send("user is updated");
+const updateUsers = async (req, res) => {
+  try {
+    const { userName, userAge } = req.body;
+    const user = await User.findOne({ id: req.params.id });
+    user.name = userName;
+    user.age = Number(userAge);
+    user.save();
+    res.status(200).json({
+      message: "data updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-const deleteUsers = (req, res) => {
-  res.status(200).send("user is deleted");
+const deleteUsers = async (req, res) => {
+  try {
+    await User.deleteOne({ id: req.params.id });
+    res.status(200).json({
+      message: "data is deleted",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 module.exports = {
