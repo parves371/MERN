@@ -1,6 +1,8 @@
+// hasing password
+require("dotenv").config();
 const mongoose = require("mongoose");
 
-const loginAuthSchema = mongoose.Schema(
+const loginAuthSchema = new mongoose.Schema(
   {
     email: {
       type: String,
@@ -13,4 +15,6 @@ const loginAuthSchema = mongoose.Schema(
   },
   { timestamps: true }
 ); // Add { timestamps: true } option to automatically add createdAt and updatedAt fields
+
+
 module.exports = mongoose.model("LoginAuth", loginAuthSchema);

@@ -1,7 +1,7 @@
 const app = require("./app");
 
 const config = require("./config/config");
-const PORT = config.app.port;
+const PORT = config.app.PORT;
 require("./config/db")
 
 app.listen(PORT, () => {

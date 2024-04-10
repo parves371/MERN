@@ -1,22 +1,24 @@
 const User = require("../models/login.model");
-
+const md5 = require("md5");
+// hasing pawword
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 const postRregister = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
     // Create a new user instance
-    const newUser = new User({
-      email,
-      password,
-    });
+    bcrypt.hash(req.body.password, saltRounds, async (err, hash) => {
+      const newUser = new User({
+        email: req.body.email,
+        password: hash,
+      });
+      // Save the new user to the database
+      await newUser.save();
 
-    // Save the new user to the database
-    await newUser.save();
-
-    // Respond with a success message and the new user details
-    res.status(201).json({
-      message: "User created successfully",
-      user: newUser,
+      // Respond with a success message and the new user details
+      res.status(201).json({
+        message: "User created successfully",
+        user: newUser,
+      });
     });
   } catch (error) {
     // Handle any errors that occur during registration
@@ -29,16 +31,27 @@ const postRregister = async (req, res) => {
 
 const postLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (user && user.password === password) {
+    // Find the user in the database by email
+    const user = await User.findOne({ email: req.body.email });
+
+    // If user doesn't exist, respond with 404 Not Found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    bcrypt.compare(req.body.password, user.password, function (err, result) {
+      // Check if the provided password matches the user's password (assuming passwords are hashed)
+
+      if (!result) {
+        // If password doesn't match, respond with 401 Unauthorized
+        return res.status(401).json({ message: "Invalid password" });
+      }
+
+      // If the user exists and password is correct, respond with 200 OK and user details
       res.status(200).json({
         message: "Login successful",
         user,
       });
-    } else {
-      res.status(404).json({ status: "not valide user" });
-    }
+    });
   } catch (error) {
     // Handle any errors that occur during login
     res.status(500).json({
