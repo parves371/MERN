@@ -76,6 +76,13 @@ app.get("/login", checkLoggedIn, (req, res) => {
 });
 // login: post
 app.post(
+  "/me",
+  passport.authenticate("local", { failureRedirect: "/login" }),
+  (req, res) => {
+    res.redirect("/profile");
+  }
+);
+app.post(
   "/login",
   passport.authenticate("local", {
     failureRedirect: "/login",
